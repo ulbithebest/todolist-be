@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/ulbithebest/todolist-be/config"
 	"github.com/ulbithebest/todolist-be/routes"
@@ -16,6 +17,11 @@ func main() {
 
 	app.Use(logger.New(logger.Config{
 		Format: "${status} - ${method} ${path}\n",
+	}))
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowMethods: "*",
 	}))
 
 	// Menyimpan koneksi database dalam context Fiber
