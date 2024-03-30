@@ -20,8 +20,9 @@ func main() {
 	}))
 
 	app.Use(cors.New(cors.Config{
+		AllowHeaders: "Origin, Content-Type, Accept",
 		AllowOrigins: "*",
-		AllowMethods: "*",
+		AllowMethods: "GET, POST, PUT, DELETE",
 	}))
 
 	// Menyimpan koneksi database dalam context Fiber
