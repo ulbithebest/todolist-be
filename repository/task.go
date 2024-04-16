@@ -29,7 +29,7 @@ func InsertTask(db *gorm.DB, task model.Task) error { // Insert data task ke dal
 }
 
 func UpdateTask(db *gorm.DB, id string, updatedTask model.Task) error { // Memperbarui data task dalam database berdasarkan ID
-	if err := db.Model(&model.Task{}).Where("id_user = ?", id).Updates(updatedTask).Error; err != nil {
+	if err := db.Model(&model.Task{}).Where("id_task = ?", id).Updates(updatedTask).Error; err != nil {
 		return err
 	}
 	return nil
