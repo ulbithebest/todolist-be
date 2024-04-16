@@ -37,7 +37,7 @@ func GetAllTask(c *fiber.Ctx) error {
 
 func GetTaskById(c *fiber.Ctx) error {
 	// Mendapatkan parameter ID task dari URL
-	id := c.Params("id")
+	id := c.Params("id_user")
 	if id == "" {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "ID task tidak ditemukan"})
 	}
@@ -80,7 +80,7 @@ func InsertTask(c *fiber.Ctx) error {
 
 func UpdateTask(c *fiber.Ctx) error {
 	// Mendapatkan parameter ID
-	id := c.Params("id")
+	id := c.Params("id_user")
 	if id == "" {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "ID task tidak ditemukan"})
 	}
@@ -108,7 +108,7 @@ func UpdateTask(c *fiber.Ctx) error {
 
 func DeleteTask(c *fiber.Ctx) error {
 	// Mendapatkan parameter ID task dari URL
-	id := c.Params("id")
+	id := c.Params("id_user")
 	if id == "" {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "ID task tidak ditemukan"})
 	}
