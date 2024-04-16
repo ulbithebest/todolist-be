@@ -10,12 +10,19 @@ func SetupTaskRoutes(app *fiber.App) {
 	app.Post("/login", controller.LoginUser)
 
 	app.Use(controller.Authenticate)
+
 	app.Get("/getme", controller.GetMe)
 	app.Get("/tasks", controller.GetAllTask)
 	app.Get("/task/get/:id", controller.GetTaskById)
 	app.Post("/task/insert", controller.InsertTask)
 	app.Put("/task/update/:id", controller.UpdateTask)
 	app.Delete("/task/delete/:id", controller.DeleteTask)
+
+	app.Get("/roles", controller.GetAllRole)
+	app.Get("/role/get/:id", controller.GetRoleById)
+	app.Post("/role/insert", controller.InsertRole)
+	app.Put("/role/update/:id", controller.UpdateRole)
+	app.Delete("/role/delete/:id", controller.DeleteRole)
 
 	app.Post("/logout", controller.LogoutUser)
 }
