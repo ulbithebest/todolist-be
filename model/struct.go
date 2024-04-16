@@ -20,6 +20,11 @@ type Users struct {
 	Email    string `gorm:"column:email" json:"email"`
 }
 
+type Roles struct {
+	IdRole int    `gorm:"primaryKey;column:id_role" json:"id_role"`
+	Nama   string `gorm:"column:nama" json:"nama"`
+}
+
 type JWTClaims struct {
 	jwt.StandardClaims
 	IdUser uint `json:"id_user"`
