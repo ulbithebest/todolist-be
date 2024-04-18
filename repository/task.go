@@ -21,7 +21,7 @@ func GetTaskById(db *gorm.DB, id string) (model.Task, error) { // Mengambil data
 	return task, nil
 }
 
-func InsertTask(db *gorm.DB, task model.Task) error { // Insert data task ke dalam database
+func InsertTask(db *gorm.DB, task *model.Task) error { // Insert data task ke dalam database
 	if err := db.Create(&task).Error; err != nil {
 		return err
 	}

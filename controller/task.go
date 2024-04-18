@@ -9,6 +9,12 @@ import (
 )
 
 func GetAllTask(c *fiber.Ctx) error {
+	// Cek token header autentikasi
+	token := c.Get("login")
+	if token == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Header tidak ada")
+	}
+
 	// Mendapatkan koneksi database dari context Fiber
 	db := c.Locals("db").(*gorm.DB)
 
@@ -16,7 +22,7 @@ func GetAllTask(c *fiber.Ctx) error {
 	tasks, err := repo.GetAllTask(db)
 	if err != nil {
 		// Jika terjadi kesalahan saat mengambil data task, mengembalikan respons error
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Terjadi Kesalahan dalam Get Data"})
 	}
 
 	// Jika tidak ada task yang ditemukan, mengembalikan pesan kesalahan
@@ -36,10 +42,16 @@ func GetAllTask(c *fiber.Ctx) error {
 }
 
 func GetTaskById(c *fiber.Ctx) error {
+	// Cek token header autentikasi
+	token := c.Get("login")
+	if token == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Header tidak ada")
+	}
+
 	// Mendapatkan parameter ID task dari URL
-	id := c.Params("id_task")
+	id := c.Query("id_task")
 	if id == "" {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "ID task tidak ditemukan"})
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "ID task tidak boleh kosong"})
 	}
 
 	// Mendapatkan koneksi database dari context Fiber
@@ -49,7 +61,7 @@ func GetTaskById(c *fiber.Ctx) error {
 	task, err := repo.GetTaskById(db, id)
 	if err != nil {
 		// Jika terjadi kesalahan, mengembalikan respons error
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Data Tidak Ditemukan"})
 	}
 
 	// Jika tidak ada kesalahan, mengembalikan data task sebagai respons JSON
@@ -57,6 +69,12 @@ func GetTaskById(c *fiber.Ctx) error {
 }
 
 func InsertTask(c *fiber.Ctx) error {
+	// Cek token header autentikasi
+	token := c.Get("login")
+	if token == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Header tidak ada")
+	}
+
 	// Mendeklarasikan variabel untuk menyimpan data task dari body request
 	var task model.Task
 
@@ -68,19 +86,25 @@ func InsertTask(c *fiber.Ctx) error {
 	// Mendapatkan koneksi database dari context Fiber
 	db := c.Locals("db").(*gorm.DB)
 
-	// Memanggil fungsi repo untuk menyisipkan data task ke dalam database
-	if err := repo.InsertTask(db, task); err != nil {
+	// Memanggil fungsi repo untuk insert data task ke dalam database
+	if err := repo.InsertTask(db, &task); err != nil {
 		// Jika terjadi kesalahan, mengembalikan respons error
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Gagal menyimpan task"})
 	}
 
 	// Mengembalikan respons sukses dengan pesan
-	return c.Status(http.StatusCreated).JSON(fiber.Map{"code": http.StatusCreated, "success": true, "status": "success", "message": "Buku berhasil disimpan", "data": task})
+	return c.Status(http.StatusCreated).JSON(fiber.Map{"code": http.StatusCreated, "success": true, "status": "success", "message": "Task berhasil disimpan", "data": task})
 }
 
 func UpdateTask(c *fiber.Ctx) error {
+	// Cek token header autentikasi
+	token := c.Get("login")
+	if token == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Header tidak ada")
+	}
+
 	// Mendapatkan parameter ID
-	id := c.Params("id_task")
+	id := c.Query("id_task")
 	if id == "" {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "ID task tidak ditemukan"})
 	}
@@ -96,6 +120,13 @@ func UpdateTask(c *fiber.Ctx) error {
 	// Mendapatkan koneksi database dari context Fiber
 	db := c.Locals("db").(*gorm.DB)
 
+	// Memanggil fungsi repo untuk cek data dengan id apakah ada atau tidak
+	_, err := repo.GetTaskById(db, id)
+	if err != nil {
+		// Jika terjadi kesalahan, mengembalikan respons error
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "ID task tidak ditemukan"})
+	}
+
 	// Memanggil fungsi repo untuk memperbarui data task di dalam database
 	if err := repo.UpdateTask(db, id, updatedTask); err != nil {
 		// Jika terjadi kesalahan, mengembalikan respons error
@@ -107,14 +138,27 @@ func UpdateTask(c *fiber.Ctx) error {
 }
 
 func DeleteTask(c *fiber.Ctx) error {
+	// Cek token header autentikasi
+	token := c.Get("login")
+	if token == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Header tidak ada")
+	}
+
 	// Mendapatkan parameter ID task dari URL
-	id := c.Params("id_task")
+	id := c.Query("id_task")
 	if id == "" {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "ID task tidak ditemukan"})
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "ID task tidak boleh kosong"})
 	}
 
 	// Mendapatkan koneksi database dari context Fiber
 	db := c.Locals("db").(*gorm.DB)
+
+	//  Memanggil fungsi repo untuk cek data dengan id apakah ada atau tidak
+	_, err := repo.GetTaskById(db, id)
+	if err != nil {
+		// Jika terjadi kesalahan, mengembalikan respons error
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "ID task tidak ditemukan"})
+	}
 
 	// Memanggil fungsi repo untuk menghapus data task dari database berdasarkan ID
 	if err := repo.DeleteTask(db, id); err != nil {

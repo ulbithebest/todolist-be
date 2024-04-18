@@ -74,67 +74,37 @@ func LoginUser(c *fiber.Ctx) error {
 }
 
 func GetMe(c *fiber.Ctx) error {
-	// Mendapatkan data user yang sedang login melalui JWT token
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(*model.JWTClaims)
+	// Mendapatkan token JWT dari header
+	tokenString := c.Get("login")
+	if tokenString == "" {
+		return fiber.NewError(fiber.StatusNotFound, "Token tidak ditemukan di header")
+	}
+
+	// Parse token JWT
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte("secret_key"), nil
+	})
+	if err != nil {
+		return err
+	}
+
+	// Memeriksa apakah token JWT valid
+	if !token.Valid {
+		return fiber.NewError(fiber.StatusBadRequest, "Token Invalid")
+	}
+
+	// Mengekstrak klaim dari token JWT
+	claims := token.Claims.(jwt.MapClaims)
+	userId := uint(claims["id_user"].(float64)) // Mengambil nilai id_user dan mengonversinya ke uint
 	db := c.Locals("db").(*gorm.DB)
 
 	// Cari user di database berdasarkan user ID menggunakan repository
-	userData, err := repo.GetUserById(db, claims.IdUser)
+	userData, err := repo.GetUserById(db, userId)
 	if err != nil {
 		return err
 	}
 
 	return c.JSON(fiber.Map{
 		"user": userData,
-	})
-}
-
-func Authenticate(c *fiber.Ctx) error {
-	// Mendapatkan token dari header Authorization
-	authHeader := c.Get("Authorization")
-	token := ""
-	if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
-		token = authHeader[7:]
-	} else {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Header Otorisasi Salah",
-		})
-	}
-
-	// Verifikasi token
-	claims := new(model.JWTClaims)
-	tkn, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
-		return []byte("secret_key"), nil
-	})
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"message": "Token Invalid",
-			})
-		}
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Gagal Mengautentikasi Token",
-		})
-	}
-
-	if !tkn.Valid {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Token Salah",
-		})
-	}
-
-	// Menyimpan data user ke local context
-	c.Locals("user", tkn)
-
-	return c.Next()
-}
-
-func LogoutUser(c *fiber.Ctx) error {
-	// Hapus token dari Authorization header
-	c.Set("Authorization", "")
-
-	return c.JSON(fiber.Map{
-		"message": "Logout berhasil",
 	})
 }
