@@ -6,11 +6,16 @@ import (
 )
 
 func GetAllTask(db *gorm.DB) ([]model.Task, error) { // Mengambil semua data task dari database
-	var task []model.Task
-	if err := db.Find(&task).Error; err != nil {
+	var tasks []model.Task
+	if err := db.
+		Table("task").
+		Select("task.id_task, task.judul, task.deskripsi, task.due_date, task.completed, users.id_user, users.nama").
+		Joins("JOIN users ON task.id_user = users.id_user").
+		Find(&tasks).
+		Error; err != nil {
 		return nil, err
 	}
-	return task, nil
+	return tasks, nil
 }
 
 func GetTaskById(db *gorm.DB, id string) (model.Task, error) { // Mengambil data Task berdasarkan ID dari database
