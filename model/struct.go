@@ -28,4 +28,5 @@ type Roles struct {
 type JWTClaims struct {
 	jwt.StandardClaims
 	IdUser uint `json:"id_user"`
+	IdRole int  `json:"id_role"`
 }
