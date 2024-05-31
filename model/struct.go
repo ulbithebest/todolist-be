@@ -9,7 +9,7 @@ type Task struct {
 	Judul     string `gorm:"column:judul" json:"judul"`
 	Deskripsi string `gorm:"column:deskripsi" json:"deskripsi"`
 	DueDate   string `gorm:"column:due_date" json:"due_date"`
-	Completed bool   `gorm:"column:completed" json:"completed"`
+	Completed string `gorm:"column:completed" json:"completed"`
 }
 
 type TaskInsert struct {
@@ -18,7 +18,7 @@ type TaskInsert struct {
 	Judul     string `gorm:"column:judul" json:"judul"`
 	Deskripsi string `gorm:"column:deskripsi" json:"deskripsi"`
 	DueDate   string `gorm:"column:due_date" json:"due_date"`
-	Completed bool   `gorm:"column:completed" json:"completed"`
+	Completed string `gorm:"column:completed" json:"completed"`
 }
 
 type Users struct {
