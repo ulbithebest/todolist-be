@@ -5,7 +5,6 @@ import "github.com/dgrijalva/jwt-go"
 type Task struct {
 	IdTask    int    `gorm:"primaryKey;column:id_task" json:"id_task"`
 	IdUser    int    `gorm:"column:id_user" json:"id_user"`
-	Nama      string `gorm:"column:nama" json:"nama,omitempty"`
 	Judul     string `gorm:"column:judul" json:"judul"`
 	Deskripsi string `gorm:"column:deskripsi" json:"deskripsi"`
 	DueDate   string `gorm:"column:due_date" json:"due_date"`
