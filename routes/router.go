@@ -14,6 +14,7 @@ func SetupTaskRoutes(app *fiber.App) {
 
 	app.Get("/tasks", controller.GetAllTask)
 	app.Get("/task/get", controller.GetTaskById)
+	app.Get("/task/taskuser", controller.GetTaskByIdUser)
 	app.Post("/task/insert", controller.InsertTask)
 	app.Put("/task/update", controller.UpdateTask)
 	app.Delete("/task/delete", controller.DeleteTask)

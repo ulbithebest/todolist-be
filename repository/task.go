@@ -26,6 +26,14 @@ func GetTaskById(db *gorm.DB, id string) (model.Task, error) { // Mengambil data
 	return task, nil
 }
 
+func GetTaskByIdUser(db *gorm.DB, userID int) ([]model.Task, error) {
+	var tasks []model.Task
+	if err := db.Where("id_user = ?", userID).Find(&tasks).Error; err != nil {
+		return nil, err
+	}
+	return tasks, nil
+}
+
 func InsertTask(db *gorm.DB, task *model.Task) error { // Insert data task ke dalam database
 	if err := db.Create(&task).Error; err != nil {
 		return err

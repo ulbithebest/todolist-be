@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/ulbithebest/todolist-be/model"
 	repo "github.com/ulbithebest/todolist-be/repository"
@@ -68,12 +69,63 @@ func GetTaskById(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"code": http.StatusOK, "success": true, "status": "success", "data": task})
 }
 
-func InsertTask(c *fiber.Ctx) error {
+func GetTaskByIdUser(c *fiber.Ctx) error {
 	// Cek token header autentikasi
-	token := c.Get("login")
-	if token == "" {
+	tokenStr := c.Get("login")
+	if tokenStr == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "Header tidak ada")
 	}
+
+	// Parse token untuk mendapatkan id_user
+	token, err := jwt.ParseWithClaims(tokenStr, &model.JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte("secret_key"), nil // Ganti "secret_key" dengan kunci rahasia Anda
+	})
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Token tidak valid"})
+	}
+
+	claims, ok := token.Claims.(*model.JWTClaims)
+	if !ok || !token.Valid {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Token tidak valid"})
+	}
+
+	idUser := claims.IdUser // Dapatkan id_user dari klaim token
+
+	// Mendapatkan koneksi database dari context Fiber
+	db := c.Locals("db").(*gorm.DB)
+
+	// Memanggil fungsi repo untuk mendapatkan task berdasarkan ID
+	task, err := repo.GetTaskByIdUser(db, int(idUser))
+	if err != nil {
+		// Jika terjadi kesalahan, mengembalikan respons error
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Data Tidak Ditemukan"})
+	}
+
+	// Jika tidak ada kesalahan, mengembalikan data task sebagai respons JSON
+	return c.JSON(fiber.Map{"code": http.StatusOK, "success": true, "status": "success", "data": task})
+}
+
+func InsertTask(c *fiber.Ctx) error {
+	// Cek token header autentikasi
+	tokenStr := c.Get("login")
+	if tokenStr == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Header tidak ada")
+	}
+
+	// Parse token untuk mendapatkan id_user
+	token, err := jwt.ParseWithClaims(tokenStr, &model.JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte("secret_key"), nil // Ganti "secret_key" dengan kunci rahasia Anda
+	})
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Token tidak valid"})
+	}
+
+	claims, ok := token.Claims.(*model.JWTClaims)
+	if !ok || !token.Valid {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Token tidak valid"})
+	}
+
+	idUser := claims.IdUser
 
 	// Mendeklarasikan variabel untuk menyimpan data task dari body request
 	var task model.Task
@@ -82,6 +134,8 @@ func InsertTask(c *fiber.Ctx) error {
 	if err := c.BodyParser(&task); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Gagal memproses request"})
 	}
+
+	task.IdUser = int(idUser)
 
 	// Mendapatkan koneksi database dari context Fiber
 	db := c.Locals("db").(*gorm.DB)
@@ -100,7 +154,7 @@ func UpdateTask(c *fiber.Ctx) error {
 	// Cek token header autentikasi
 	token := c.Get("login")
 	if token == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "Header tidak ada")
+		return fiber.NewError(http.StatusBadRequest, "Header tidak ada")
 	}
 
 	// Mendapatkan parameter ID
