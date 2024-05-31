@@ -128,7 +128,7 @@ func InsertTask(c *fiber.Ctx) error {
 	idUser := claims.IdUser
 
 	// Mendeklarasikan variabel untuk menyimpan data task dari body request
-	var task model.TaskInsert
+	var task model.Task
 
 	// Mem-parsing body request ke dalam variabel task
 	if err := c.BodyParser(&task); err != nil {
@@ -136,6 +136,7 @@ func InsertTask(c *fiber.Ctx) error {
 	}
 
 	task.IdUser = int(idUser)
+	task.Completed = "false"
 
 	// Mendapatkan koneksi database dari context Fiber
 	db := c.Locals("db").(*gorm.DB)
@@ -164,7 +165,7 @@ func UpdateTask(c *fiber.Ctx) error {
 	}
 
 	// Mendeklarasikan variabel untuk menyimpan data task yang diperbarui dari body request
-	var updatedTask model.TaskInsert
+	var updatedTask model.Task
 
 	// Mem-parsing body request ke dalam variabel updatedTask
 	if err := c.BodyParser(&updatedTask); err != nil {
