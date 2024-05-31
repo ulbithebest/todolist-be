@@ -128,7 +128,7 @@ func InsertTask(c *fiber.Ctx) error {
 	idUser := claims.IdUser
 
 	// Mendeklarasikan variabel untuk menyimpan data task dari body request
-	var task model.Task
+	var task model.TaskInsert
 
 	// Mem-parsing body request ke dalam variabel task
 	if err := c.BodyParser(&task); err != nil {
@@ -164,7 +164,7 @@ func UpdateTask(c *fiber.Ctx) error {
 	}
 
 	// Mendeklarasikan variabel untuk menyimpan data task yang diperbarui dari body request
-	var updatedTask model.Task
+	var updatedTask model.TaskInsert
 
 	// Mem-parsing body request ke dalam variabel updatedTask
 	if err := c.BodyParser(&updatedTask); err != nil {
