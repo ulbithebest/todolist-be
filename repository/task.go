@@ -5,8 +5,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAllTask(db *gorm.DB) ([]model.Task, error) { // Mengambil semua data task dari database
-	var tasks []model.Task
+func GetAllTask(db *gorm.DB) ([]model.GetJoinTask, error) { // Mengambil semua data task dari database
+	var tasks []model.GetJoinTask
 	if err := db.
 		Table("task").
 		Select("task.id_task, task.judul, task.deskripsi, task.due_date, task.completed, users.id_user, users.nama").
@@ -34,14 +34,14 @@ func GetTaskByIdUser(db *gorm.DB, userID int) ([]model.Task, error) {
 	return tasks, nil
 }
 
-func InsertTask(db *gorm.DB, task *model.TaskInsert) error { // Insert data task ke dalam database
+func InsertTask(db *gorm.DB, task *model.Task) error { // Insert data task ke dalam database
 	if err := db.Create(&task).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func UpdateTask(db *gorm.DB, id string, updatedTask model.TaskInsert) error { // Memperbarui data task dalam database berdasarkan ID
+func UpdateTask(db *gorm.DB, id string, updatedTask model.Task) error { // Memperbarui data task dalam database berdasarkan ID
 	if err := db.Model(&model.Task{}).Where("id_task = ?", id).Updates(updatedTask).Error; err != nil {
 		return err
 	}
